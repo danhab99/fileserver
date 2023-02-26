@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -11,14 +12,20 @@ import (
 )
 
 func main() {
-	router := gin.Default()
-
-	cwd, err := os.Getwd()
+	cwdPath, err := os.Getwd()
 	// cwd += "/"
-	fmt.Printf("cwd: %v\n", cwd)
+	fmt.Printf("cwd: %v\n", cwdPath)
 	if err != nil {
 		panic(err)
 	}
+
+	cwdPtr := flag.String("path", cwdPath, "the path to display files from")
+	port := flag.Int("port", 8080, "the port to listen to")
+	flag.Parse()
+
+	router := gin.Default()
+
+	cwd := *cwdPtr
 
 	router.GET("/*dirPath", func(c *gin.Context) {
 		dirPath := c.Param("dirPath")
@@ -138,5 +145,5 @@ func main() {
 		c.Redirect(302, dirPath)
 	})
 
-	router.Run(":8080")
+	router.Run(fmt.Sprintf("0.0.0.0:%d", *port))
 }
